@@ -1,0 +1,4 @@
+*.macro.ts
+src/assets/*
+src/components.d.ts
+src/polyfill-array.ts

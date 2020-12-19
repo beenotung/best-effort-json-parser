@@ -1,0 +1,18 @@
+{
+  "singleQuote": true,
+  "jsxSingleQuote": false,
+  "overrides": [
+    {
+      "files": [
+        "*.scss",
+        "*.css"
+      ],
+      "options": {
+        "singleQuote": false
+      }
+    }
+  ],
+  "semi": false,
+  "arrowParens": "avoid",
+  "trailingComma": "all"
+}
