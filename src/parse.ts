@@ -3,13 +3,26 @@ export function parse(s: string): any {
     return JSON.parse(s)
   } catch (e) {
     const [data, reminding] = parseAny(s, e)
-    if (reminding.length > 0) {
-      console.error('parsed json with extra tokens:', {
-        data,
-        reminding,
-      })
+    parse.lastParseReminding = reminding
+    if (parse.onExtraToken && reminding.length > 0) {
+      parse.onExtraToken(s, data, reminding)
     }
     return data
+  }
+}
+
+export namespace parse {
+  export let lastParseReminding: string | undefined
+  export let onExtraToken: (
+    text: string,
+    data: any,
+    reminding: string,
+  ) => void | undefined = (text, data, reminding) => {
+    console.error('parsed json with extra tokens:', {
+      text,
+      data,
+      reminding,
+    })
   }
 }
 
@@ -87,7 +100,7 @@ function numToStr(s: string) {
     return -0
   }
   const num = +s
-  if (Number.isNaN(s)) {
+  if (Number.isNaN(num)) {
     return s
   }
   return num

@@ -1,3 +1,4 @@
+import sinon from 'sinon'
 import { expect } from 'chai'
 import { parse } from './parse'
 
@@ -25,6 +26,10 @@ describe('parser TestSuit', function () {
     })
     it('should parse incomplete negative integer', function () {
       expect(parse(`-`)).equals(-0)
+    })
+
+    it('should preserve invalid number', function () {
+      expect(parse(`1.2.3.4`)).equals('1.2.3.4')
     })
   })
 
@@ -490,6 +495,35 @@ describe('parser TestSuit', function () {
         float: 12.34,
         arr: [42, 12.34, [42, 12.34], { int: 42, flo: undefined }],
       })
+    })
+  })
+
+  context('invalid inputs', () => {
+    it('should throw error on invalid (not incomplete) json text', function () {
+      let spy = sinon.fake()
+      let error = console.error
+      console.error = spy
+      expect(() => parse(`:atom`)).to.throws()
+      expect(spy.called).be.true
+      expect(spy.firstCall.firstArg).is.string('no parser registered')
+      console.error = error
+    })
+    it('should complaint on extra tokens', function () {
+      // let spy = sinon.fake()
+      // parse.onExtraToken = spy
+      let spy = sinon.spy(parse, 'onExtraToken')
+      expect(parse(`[1] 2`)).deep.equals([1])
+      expect(spy.called).be.true
+      expect(parse.lastParseReminding).equals(' 2')
+    })
+  })
+
+  context('extra space', () => {
+    it('should parse complete json with extra space', function () {
+      expect(parse(` [1] `)).deep.equals([1])
+    })
+    it('should parse incomplete json with extra space', function () {
+      expect(parse(` [1 `)).deep.equals([1])
     })
   })
 })
