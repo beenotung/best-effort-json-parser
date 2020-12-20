@@ -1,13 +1,15 @@
 {
   "name": "best-effort-json-parser",
-  "version": "1.0.0",
-  "description": "",
-  "keywords": [],
-  "author": {
-    "name": "Beeno Tung",
-    "email": "aabbcc1241@yahoo.com.hk",
-    "url": "https://beeno-tung.surge.sh"
-  },
+  "version": "0.0.0",
+  "description": "Parse incomplete json text in best-effort manner",
+  "keywords": [
+    "json",
+    "parser",
+    "auto-fix",
+    "auto-repair",
+    "best-effort"
+  ],
+  "author": "Beeno Tung <aabbcc1241@yahoo.com.hk> (https://beeno-tung.surge.sh)",
   "license": "BSD-2-Clause",
   "main": "dist/parse.js",
   "types": "dist/parse.d.ts",
@@ -31,6 +33,7 @@
     }
   },
   "directories": {
+    "example": "example",
     "test": "test"
   },
   "files": [
@@ -61,5 +64,13 @@
     "tslint-eslint-rules": "^5.4.0",
     "tslint-etc": "^1.13.9",
     "typescript": "^4.1.3"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/beenotung/best-effort-json-parser.git"
+  },
+  "bugs": {
+    "url": "https://github.com/beenotung/best-effort-json-parser/issues"
+  },
+  "homepage": "https://github.com/beenotung/best-effort-json-parser#readme"
 }
