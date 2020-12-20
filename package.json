@@ -19,7 +19,7 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "postformat": "tslint -p . --fix",
     "build": "run-s clean tsc",
-    "tsc": "tsc -p tsconfig.build.json",
+    "tsc": "tsc -p .",
     "mocha": "ts-mocha \"src/**/*.spec.ts\"",
     "coverage": "nyc npm run mocha -- --reporter=progress",
     "report:update": "nyc --reporter=lcov npm run mocha -- --reporter=progress",
