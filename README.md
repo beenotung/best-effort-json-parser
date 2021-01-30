@@ -13,3 +13,7 @@ console.log(data) // [1, 2, { a: 'apple' }]
 ```
 
 More examples see [parse.spec.ts](./src/parse.spec.ts)
+
+## License
+This is free and open-source software (FOSS) with
+[BSD-2-Clause License](./LICENSE)
