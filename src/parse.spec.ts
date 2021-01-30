@@ -46,6 +46,26 @@ describe('parser TestSuit', function () {
     })
   })
 
+  context('boolean', () => {
+    it('should parse boolean', function () {
+      expect(parse(`true`)).equals(true)
+      expect(parse(`false`)).equals(false)
+    })
+
+    function testIncomplete(str: string, val: boolean) {
+      for (let i = str.length; i >= 1; i--) {
+        expect(parse(str.slice(0, i))).equals(val)
+      }
+    }
+
+    it('should parse incomplete true', function () {
+      testIncomplete(`true`, true)
+    })
+    it('should parse incomplete false', function () {
+      testIncomplete(`false`, false)
+    })
+  })
+
   context('array', () => {
     it('should parse empty array', function () {
       expect(parse(`[]`)).deep.equals([])

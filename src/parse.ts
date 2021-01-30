@@ -164,3 +164,38 @@ function parseObject(s: string, e: Error): ParseResult<object> {
   }
   return [acc, s]
 }
+
+parsers['t'] = parseTrue
+
+function parseTrue(s: string, e: Error): ParseResult<true> {
+  return parseBoolean(s, `true`, true, e)
+}
+
+parsers['f'] = parseFalse
+
+function parseFalse(s: string, e: Error): ParseResult<false> {
+  return parseBoolean(s, `false`, false, e)
+}
+
+function parseBoolean<T extends boolean>(
+  s: string,
+  boolStr: string,
+  boolVal: T,
+  e: Error,
+): ParseResult<T> {
+  for (let i = boolStr.length; i >= 1; i--) {
+    if (s.startsWith(boolStr.slice(0, i))) {
+      return [boolVal, s.slice(i)]
+    }
+  }
+  /* istanbul ignore next */
+  {
+    console.error(
+      `not boolean value starting with ${JSON.stringify(
+        s.slice(0, boolStr.length),
+      )}:`,
+      { s },
+    )
+    throw e
+  }
+}
