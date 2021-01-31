@@ -1,6 +1,6 @@
 {
   "name": "best-effort-json-parser",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Parse incomplete json text in best-effort manner",
   "keywords": [
     "json",
