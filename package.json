@@ -37,7 +37,8 @@
     "test": "test"
   },
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "dependencies": {
     "@beenotung/tslib": "^16.39.1",
