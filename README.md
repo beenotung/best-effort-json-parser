@@ -2,7 +2,9 @@
 
 Parse incomplete json text in best-effort manner
 
-[![npm Package Version](https://img.shields.io/npm/v/best-effort-json-parser.svg?maxAge=3600)](https://www.npmjs.com/package/best-effort-json-parser)
+[![npm Package Version](https://img.shields.io/npm/v/best-effort-json-parser)](https://www.npmjs.com/package/best-effort-json-parser)
+[![Minified Package Size](https://img.shields.io/bundlephobia/min/best-effort-json-parser)](https://bundlephobia.com/package/best-effort-json-parser)
+[![Minified and Gzipped Package Size](https://img.shields.io/bundlephobia/minzip/best-effort-json-parser)](https://bundlephobia.com/package/best-effort-json-parser)
 
 ## Example
 ```typescript
