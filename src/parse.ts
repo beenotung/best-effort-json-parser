@@ -1,3 +1,5 @@
+type Error = unknown
+
 export function parse(s: string): any {
   try {
     return JSON.parse(s)
