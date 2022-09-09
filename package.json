@@ -27,11 +27,6 @@
     "report": "run-s report:update report:open",
     "prepublishOnly": "run-s test build"
   },
-  "husky": {
-    "hook": {
-      "pre-commit": "npm run format"
-    }
-  },
   "directories": {
     "example": "example",
     "test": "test"
@@ -50,7 +45,6 @@
     "@types/node": "*",
     "@types/sinon": "^9.0.9",
     "chai": "^4.2.0",
-    "husky": "^4.3.6",
     "mocha": "^8.2.1",
     "npm-run-all": "^4.1.5",
     "nyc": "^15.1.0",
