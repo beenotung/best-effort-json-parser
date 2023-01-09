@@ -35,10 +35,6 @@
     "dist",
     "src"
   ],
-  "dependencies": {
-    "@beenotung/tslib": "^16.39.1",
-    "tslib": "^2.0.3"
-  },
   "devDependencies": {
     "@types/chai": "^4.2.14",
     "@types/mocha": "^8.2.0",

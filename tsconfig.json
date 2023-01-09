@@ -10,7 +10,7 @@
     "strict": true,
     "skipLibCheck": true,
     "downlevelIteration": false,
-    "importHelpers": true,
+    "importHelpers": false,
     "lib": [
       "dom",
       "es2018"
