@@ -133,7 +133,10 @@ describe('parser TestSuit', function () {
         b: undefined,
       })
       expect(parse(`{"a":"apple","b`)).deep.equals({ a: 'apple', b: undefined })
-      expect(parse(`{"a":"apple","`)).deep.equals({ a: 'apple', '': undefined })
+      expect(parse(`{"a":"apple","`)).deep.equals({
+        'a': 'apple',
+        '': undefined,
+      })
       expect(parse(`{"a":"apple",`)).deep.equals({ a: 'apple' })
       expect(parse(`{"a":"apple"`)).deep.equals({ a: 'apple' })
       expect(parse(`{"a":"apple`)).deep.equals({ a: 'apple' })
