@@ -551,8 +551,13 @@ describe('parser TestSuit', function () {
   })
 
   context('invalid but understandable json', () => {
-    it('should parse escaped newline', function () {
-      expect(parse(`"line1\\nline2"`)).equals('line1\nline2')
+    context('string newline', () => {
+      it('should parse escaped newline', function () {
+        expect(parse(`"line1\\nline2"`)).equals('line1\nline2')
+      })
+      it('should parse non-escaped newline', function () {
+        expect(parse(`"line1\nline2"`)).equals('line1\nline2')
+      })
     })
     context('string quote', () => {
       it('should parse string with double quote', function () {
