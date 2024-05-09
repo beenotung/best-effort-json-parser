@@ -40,7 +40,7 @@ function parseAny(s: string, e: Error): ParseResult<any> {
   return parser(s, e)
 }
 
-function parseObjectKey(s: string, e: Error): ParseResult<string> {
+function parseObjectKey(s: string): ParseResult<string> {
   if (s[0] === '"') {
     return parseString(s)
   }
@@ -179,7 +179,7 @@ function parseObject(s: string, e: Error): ParseResult<object> {
       break
     }
 
-    const keyRes = parseObjectKey(s, e)
+    const keyRes = parseObjectKey(s)
     const key = keyRes[0]
     s = keyRes[1]
 
