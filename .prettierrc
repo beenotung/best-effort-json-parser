@@ -1,6 +1,7 @@
 {
   "singleQuote": true,
   "jsxSingleQuote": false,
+  "quoteProps": "consistent",
   "overrides": [
     {
       "files": [
