@@ -129,6 +129,24 @@ function parseString(s: string): ParseResult<string> {
   return [JSON.parse(s + '"'), '']
 }
 
+parsers["'"] = parseSingleQuoteString
+
+function parseSingleQuoteString(s: string): ParseResult<string> {
+  for (let i = 1; i < s.length; i++) {
+    const c = s[i]
+    if (c === '\\') {
+      i++
+      continue
+    }
+    if (c === "'") {
+      const str = s.substring(0, i + 1).replace(/\n/g, '\\n')
+      s = s.substring(i + 1)
+      return [JSON.parse('"' + str.slice(1, -1) + '"'), s]
+    }
+  }
+  return [JSON.parse('"' + s.slice(1) + '"'), '']
+}
+
 parsers['{'] = parseObject
 
 function parseObject(s: string, e: Error): ParseResult<object> {

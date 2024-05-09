@@ -554,6 +554,14 @@ describe('parser TestSuit', function () {
     it('should parse escaped newline', function () {
       expect(parse(`"line1\\nline2"`)).equals('line1\nline2')
     })
+    context('string quote', () => {
+      it('should parse string with double quote', function () {
+        expect(parse(`"str"`)).equals('str')
+      })
+      it('should parse string with single quote', function () {
+        expect(parse(`'str'`)).equals('str')
+      })
+    })
     it('should parse non-escaped newline', function () {
       expect(parse(`"line1\nline2"`)).equals('line1\nline2')
     })
