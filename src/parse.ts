@@ -1,6 +1,9 @@
 type Error = unknown
 
-export function parse(s: string): any {
+export function parse(s: string | undefined | null): any {
+  if (s === undefined) return undefined
+  if (s === null) return null
+  if (s === '') return ''
   try {
     return JSON.parse(s)
   } catch (e) {

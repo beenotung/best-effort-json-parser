@@ -558,4 +558,16 @@ describe('parser TestSuit', function () {
       expect(parse(`"line1\nline2"`)).equals('line1\nline2')
     })
   })
+
+  context('falsy values', () => {
+    it('should parse empty string', function () {
+      expect(parse('')).equals('')
+    })
+    it('should parse undefined', function () {
+      expect(parse(undefined)).to.be.undefined
+    })
+    it('should parse null', function () {
+      expect(parse(null)).to.be.null
+    })
+  })
 })
