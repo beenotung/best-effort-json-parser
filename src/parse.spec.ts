@@ -546,4 +546,13 @@ describe('parser TestSuit', function () {
       expect(parse(` [1 `)).deep.equals([1])
     })
   })
+
+  context('invalid but understandable json', () => {
+    it('should parse escaped newline', function () {
+      expect(parse(`"line1\\nline2"`)).equals('line1\nline2')
+    })
+    it('should parse non-escaped newline', function () {
+      expect(parse(`"line1\nline2"`)).equals('line1\nline2')
+    })
+  })
 })

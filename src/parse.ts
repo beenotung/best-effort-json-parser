@@ -118,7 +118,7 @@ function parseString(s: string): ParseResult<string> {
       continue
     }
     if (c === '"') {
-      const str = s.substring(0, i + 1)
+      const str = s.substring(0, i + 1).replace(/\n/g, '\\n')
       s = s.substring(i + 1)
       return [JSON.parse(str), s]
     }
