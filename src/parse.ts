@@ -1,14 +1,20 @@
 type Error = unknown
 
 export function parse(s: string | undefined | null): any {
-  if (s === undefined) return undefined
-  if (s === null) return null
-  if (s === '') return ''
+  if (s === undefined) {
+    return undefined
+  }
+  if (s === null) {
+    return null
+  }
+  if (s === '') {
+    return ''
+  }
   try {
     return JSON.parse(s)
   } catch (e) {
     const [data, reminding] =
-      s.trimLeft()[0] == ':'
+      s.trimLeft()[0] === ':'
         ? parseAny(s, e)
         : parseAny(s, e, parseStringWithoutQuote)
     parse.lastParseReminding = reminding
@@ -175,14 +181,14 @@ function parseStringWithoutQuote(
   e: Error,
   delimiters: string[] = [' '],
 ): ParseResult<string> {
-  let index = Math.min(
+  const index = Math.min(
     ...delimiters.map(delimiter => {
-      let index = s.indexOf(delimiter)
-      return index == -1 ? s.length : index
+      const index = s.indexOf(delimiter)
+      return index === -1 ? s.length : index
     }),
   )
-  let value = s.substring(0, index).trim()
-  let rest = s.substring(index)
+  const value = s.substring(0, index).trim()
+  const rest = s.substring(index)
   return [value, rest]
 }
 
