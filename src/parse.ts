@@ -7,7 +7,10 @@ export function parse(s: string | undefined | null): any {
   try {
     return JSON.parse(s)
   } catch (e) {
-    const [data, reminding] = parseAny(s, e)
+    const [data, reminding] =
+      s.trimLeft()[0] == ':'
+        ? parseAny(s, e)
+        : parseAny(s, e, parseStringWithoutQuote)
     parse.lastParseReminding = reminding
     if (parse.onExtraToken && reminding.length > 0) {
       parse.onExtraToken(s, data, reminding)
@@ -31,8 +34,12 @@ export namespace parse {
   }
 }
 
-function parseAny(s: string, e: Error): ParseResult<any> {
-  const parser = parsers[s[0]]
+function parseAny(
+  s: string,
+  e: Error,
+  fallback?: Parser<any>,
+): ParseResult<any> {
+  const parser = parsers[s[0]] || fallback
   if (!parser) {
     console.error(`no parser registered for ${JSON.stringify(s[0])}:`, { s })
     throw e
@@ -40,14 +47,18 @@ function parseAny(s: string, e: Error): ParseResult<any> {
   return parser(s, e)
 }
 
-function parseObjectKey(s: string): ParseResult<string> {
+function parseStringCasual(
+  s: string,
+  e: Error,
+  delimiters?: string[],
+): ParseResult<string> {
   if (s[0] === '"') {
     return parseString(s)
   }
   if (s[0] === "'") {
     return parseSingleQuoteString(s)
   }
-  return parseStringWithoutQuote(s)
+  return parseStringWithoutQuote(s, e, delimiters)
 }
 
 type Code = string
@@ -81,7 +92,9 @@ function parseArray(s: string, e: Error): ParseResult<any[]> {
       s = s.substr(1) // skip ending ']'
       break
     }
-    const res = parseAny(s, e)
+    const res = parseAny(s, e, (s, e) =>
+      parseStringWithoutQuote(s, e, [',', ']']),
+    )
     acc.push(res[0])
     s = res[1]
     s = skipSpace(s)
@@ -157,11 +170,17 @@ function parseSingleQuoteString(s: string): ParseResult<string> {
   return [JSON.parse('"' + s.slice(1) + '"'), '']
 }
 
-function parseStringWithoutQuote(s: string): ParseResult<string> {
-  let index = s.indexOf(':')
-  if (index == -1) {
-    index = s.length
-  }
+function parseStringWithoutQuote(
+  s: string,
+  e: Error,
+  delimiters: string[] = [' '],
+): ParseResult<string> {
+  let index = Math.min(
+    ...delimiters.map(delimiter => {
+      let index = s.indexOf(delimiter)
+      return index == -1 ? s.length : index
+    }),
+  )
   let value = s.substring(0, index).trim()
   let rest = s.substring(index)
   return [value, rest]
@@ -179,7 +198,7 @@ function parseObject(s: string, e: Error): ParseResult<object> {
       break
     }
 
-    const keyRes = parseObjectKey(s)
+    const keyRes = parseStringCasual(s, e, [':', '}'])
     const key = keyRes[0]
     s = keyRes[1]
 

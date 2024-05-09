@@ -566,6 +566,12 @@ describe('parser TestSuit', function () {
       it('should parse string with single quote', function () {
         expect(parse(`'str'`)).equals('str')
       })
+      it('should parse string without double quote', function () {
+        expect(parse(`str`)).equals('str')
+      })
+      it('should parse array of string without double quote', function () {
+        expect(parse(`[a,b,c]`)).deep.equals(['a', 'b', 'c'])
+      })
     })
     context('object key', () => {
       it('should parse object key with double quote', function () {
