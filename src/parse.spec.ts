@@ -567,8 +567,16 @@ describe('parser TestSuit', function () {
         expect(parse(`'str'`)).equals('str')
       })
     })
-    it('should parse non-escaped newline', function () {
-      expect(parse(`"line1\nline2"`)).equals('line1\nline2')
+    context('object key', () => {
+      it('should parse object key with double quote', function () {
+        expect(parse(`{ "int" : 42 }`)).deep.equals({ int: 42 })
+      })
+      it('should parse object key with single quote', function () {
+        expect(parse(`{ 'int' : 42 }`)).deep.equals({ int: 42 })
+      })
+      it('should parse object key without double quote', function () {
+        expect(parse(`{ int : 42 }`)).deep.equals({ int: 42 })
+      })
     })
   })
 

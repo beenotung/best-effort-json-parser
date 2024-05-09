@@ -40,6 +40,16 @@ function parseAny(s: string, e: Error): ParseResult<any> {
   return parser(s, e)
 }
 
+function parseObjectKey(s: string, e: Error): ParseResult<string> {
+  if (s[0] === '"') {
+    return parseString(s)
+  }
+  if (s[0] === "'") {
+    return parseSingleQuoteString(s)
+  }
+  return parseStringWithoutQuote(s)
+}
+
 type Code = string
 type Parser<T> = (s: Code, e: Error) => ParseResult<T>
 type ParseResult<T> = [T, Code]
@@ -147,6 +157,16 @@ function parseSingleQuoteString(s: string): ParseResult<string> {
   return [JSON.parse('"' + s.slice(1) + '"'), '']
 }
 
+function parseStringWithoutQuote(s: string): ParseResult<string> {
+  let index = s.indexOf(':')
+  if (index == -1) {
+    index = s.length
+  }
+  let value = s.substring(0, index).trim()
+  let rest = s.substring(index)
+  return [value, rest]
+}
+
 parsers['{'] = parseObject
 
 function parseObject(s: string, e: Error): ParseResult<object> {
@@ -159,7 +179,7 @@ function parseObject(s: string, e: Error): ParseResult<object> {
       break
     }
 
-    const keyRes = parseAny(s, e)
+    const keyRes = parseObjectKey(s, e)
     const key = keyRes[0]
     s = keyRes[1]
 
