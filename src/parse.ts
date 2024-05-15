@@ -10,6 +10,10 @@ export function parse(s: string | undefined | null): any {
   if (s === '') {
     return ''
   }
+  // remove incomplete escaped characters at the end of the string
+  s = s.replace(/\\+$/, match =>
+    match.length % 2 === 0 ? match : match.slice(0, -1),
+  )
   try {
     return JSON.parse(s)
   } catch (e) {
@@ -155,7 +159,7 @@ function parseString(s: string): ParseResult<string> {
       return [JSON.parse(str), s]
     }
   }
-  return [JSON.parse(s + '"'), '']
+  return [JSON.parse(s.replace(/\n/g, '\\n') + '"'), '']
 }
 
 parsers["'"] = parseSingleQuoteString
@@ -173,7 +177,7 @@ function parseSingleQuoteString(s: string): ParseResult<string> {
       return [JSON.parse('"' + str.slice(1, -1) + '"'), s]
     }
   }
-  return [JSON.parse('"' + s.slice(1) + '"'), '']
+  return [JSON.parse('"' + s.slice(1).replace(/\n/g, '\\n') + '"'), '']
 }
 
 function parseStringWithoutQuote(

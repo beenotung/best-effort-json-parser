@@ -558,6 +558,13 @@ describe('parser TestSuit', function () {
       it('should parse non-escaped newline', function () {
         expect(parse(`"line1\nline2"`)).equals('line1\nline2')
       })
+      it('should parse non-escaped newline inside string value', function () {
+        expect(parse(`{"key":"line1\\nline2`)).deep.equals({ key: 'line1\nline2' })
+        expect(parse(`{"key":"line1\nline2`)).deep.equals({ key: 'line1\nline2' })
+        expect(parse(`{"key":"line1\n`)).deep.equals({ key: 'line1\n' })
+        expect(parse(`{\n\t"key":"line1\n`)).deep.equals({ key: 'line1\n' })
+        expect(parse(`{\n\t"key":"line1\nline2"\n}`)).deep.equals({ key: 'line1\nline2' })
+      })
     })
     context('string quote', () => {
       it('should parse string with double quote', function () {
@@ -595,6 +602,18 @@ describe('parser TestSuit', function () {
     })
     it('should parse null', function () {
       expect(parse(null)).to.be.null
+    })
+  })
+
+  context('incomplete escaped characters', function () {
+    it('should ignore an incomplete escaped character (such as control character \\n)', function () {
+      expect(parse(`"1. here comes the newline\n`)).equals('1. here comes the newline\n')
+      expect(parse(`"2. here comes the newline\\`)).equals('2. here comes the newline')
+      expect(parse(`"4. here comes the newline\\n\\`)).equals('4. here comes the newline\n')
+      expect(parse(`"3. here comes the newline\\\\`)).equals('3. here comes the newline\\')
+      expect(parse(`"5. here comes the newline\\\\\\`)).equals('5. here comes the newline\\')
+      expect(parse(`"6. here comes the newline\\\\\\\\`)).equals('6. here comes the newline\\\\')
+      expect(parse(`"7. here comes the newline\n\\\\`)).equals('7. here comes the newline\n\\')
     })
   })
 })
