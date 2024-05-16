@@ -559,11 +559,17 @@ describe('parser TestSuit', function () {
         expect(parse(`"line1\nline2"`)).equals('line1\nline2')
       })
       it('should parse non-escaped newline inside string value', function () {
-        expect(parse(`{"key":"line1\\nline2`)).deep.equals({ key: 'line1\nline2' })
-        expect(parse(`{"key":"line1\nline2`)).deep.equals({ key: 'line1\nline2' })
+        expect(parse(`{"key":"line1\\nline2`)).deep.equals({
+          key: 'line1\nline2',
+        })
+        expect(parse(`{"key":"line1\nline2`)).deep.equals({
+          key: 'line1\nline2',
+        })
         expect(parse(`{"key":"line1\n`)).deep.equals({ key: 'line1\n' })
         expect(parse(`{\n\t"key":"line1\n`)).deep.equals({ key: 'line1\n' })
-        expect(parse(`{\n\t"key":"line1\nline2"\n}`)).deep.equals({ key: 'line1\nline2' })
+        expect(parse(`{\n\t"key":"line1\nline2"\n}`)).deep.equals({
+          key: 'line1\nline2',
+        })
       })
     })
     context('string quote', () => {
