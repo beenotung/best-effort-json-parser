@@ -554,6 +554,15 @@ describe('parser TestSuit', function () {
     context('string newline', () => {
       it('should parse escaped newline', function () {
         expect(parse(`"line1\\nline2"`)).equals('line1\nline2')
+        expect(
+          parse(/* javascript */ `
+            {
+              "essay": "global health.\n\nDuring my tenure ..."
+            }
+          `),
+        ).deep.equals({
+          essay: 'global health.\n\nDuring my tenure ...',
+        })
       })
       it('should parse non-escaped newline', function () {
         expect(parse(`"line1\nline2"`)).equals('line1\nline2')
