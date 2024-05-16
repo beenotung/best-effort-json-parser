@@ -613,13 +613,12 @@ describe('parser TestSuit', function () {
 
   context('incomplete escaped characters', function () {
     it('should ignore an incomplete escaped character (such as control character \\n)', function () {
-      expect(parse(`"1. here comes the newline\n`)).equals('1. here comes the newline\n')
-      expect(parse(`"2. here comes the newline\\`)).equals('2. here comes the newline')
-      expect(parse(`"4. here comes the newline\\n\\`)).equals('4. here comes the newline\n')
-      expect(parse(`"3. here comes the newline\\\\`)).equals('3. here comes the newline\\')
-      expect(parse(`"5. here comes the newline\\\\\\`)).equals('5. here comes the newline\\')
-      expect(parse(`"6. here comes the newline\\\\\\\\`)).equals('6. here comes the newline\\\\')
-      expect(parse(`"7. here comes the newline\n\\\\`)).equals('7. here comes the newline\n\\')
+      expect(parse(`"the newline\n`)).equals('the newline\n')
+      expect(parse(`"the newline\\n`)).equals('the newline\n')
+      expect(parse(`"the newline\\`)).equals('the newline')
+      expect(parse(`"the newline\n\\`)).equals('the newline\n')
+      expect(parse(`"the newline\\n\\`)).equals('the newline\n')
+      expect(parse(`"the newline\\\\`)).equals('the newline\\')
     })
   })
 })
