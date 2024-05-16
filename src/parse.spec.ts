@@ -620,5 +620,11 @@ describe('parser TestSuit', function () {
       expect(parse(`"the newline\\n\\`)).equals('the newline\n')
       expect(parse(`"the newline\\\\`)).equals('the newline\\')
     })
+    it('should ignore incomplete escape character in object value', function () {
+      expect(parse('{"a":"\n"')).deep.equals({ a: '\n' })
+      expect(parse('{"a":"\n')).deep.equals({ a: '\n' })
+      expect(parse('{"a":"\\n"')).deep.equals({ a: '\n' })
+      expect(parse('{"a":"\\')).deep.equals({ a: '' })
+    })
   })
 })
