@@ -581,6 +581,16 @@ describe('parser TestSuit', function () {
         })
       })
     })
+    context('string non-escaped characters', function () {
+      it('should parse \\t', function () {
+        expect(parse(`"text\t"`)).equals(`text\t`)
+        expect(parse(`"text\\t"`)).equals(`text\t`)
+      })
+      it('should parse \\r', function () {
+        expect(parse(`"text\r"`)).equals(`text\r`)
+        expect(parse(`"text\\r"`)).equals(`text\r`)
+      })
+    })
     context('string quote', () => {
       it('should parse string with double quote', function () {
         expect(parse(`"str"`)).equals('str')

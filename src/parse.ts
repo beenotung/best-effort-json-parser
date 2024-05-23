@@ -154,12 +154,16 @@ function parseString(s: string): ParseResult<string> {
       continue
     }
     if (c === '"') {
-      const str = s.substring(0, i + 1).replace(/\n/g, '\\n')
+      const str = fixEscapedCharacters(s.substring(0, i + 1))
       s = s.substring(i + 1)
       return [JSON.parse(str), s]
     }
   }
-  return [JSON.parse(s.replace(/\n/g, '\\n') + '"'), '']
+  return [JSON.parse(fixEscapedCharacters(s) + '"'), '']
+}
+
+function fixEscapedCharacters(s: string): string {
+  return s.replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r')
 }
 
 parsers["'"] = parseSingleQuoteString
@@ -172,12 +176,12 @@ function parseSingleQuoteString(s: string): ParseResult<string> {
       continue
     }
     if (c === "'") {
-      const str = s.substring(0, i + 1).replace(/\n/g, '\\n')
+      const str = fixEscapedCharacters(s.substring(0, i + 1))
       s = s.substring(i + 1)
       return [JSON.parse('"' + str.slice(1, -1) + '"'), s]
     }
   }
-  return [JSON.parse('"' + s.slice(1).replace(/\n/g, '\\n') + '"'), '']
+  return [JSON.parse('"' + fixEscapedCharacters(s.slice(1)) + '"'), '']
 }
 
 function parseStringWithoutQuote(
