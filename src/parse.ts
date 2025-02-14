@@ -23,7 +23,11 @@ export function parse(s: string | undefined | null): any {
         : parseAny(s, e, parseStringWithoutQuote)
     parse.lastParseReminding = reminding
     if (parse.onExtraToken && reminding.length > 0) {
-      parse.onExtraToken(s, data, reminding)
+      const trimmedReminding = reminding.trimRight()
+      parse.lastParseReminding = trimmedReminding
+      if (trimmedReminding.length > 0) {
+        parse.onExtraToken(s, data, trimmedReminding)
+      }
     }
     return data
   }
