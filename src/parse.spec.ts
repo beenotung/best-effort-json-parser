@@ -2,6 +2,26 @@ import sinon from 'sinon'
 import { expect } from 'chai'
 import { parse } from './parse'
 
+let onExtraTokenSpy: sinon.SinonSpy
+let originalOnExtraToken: typeof parse.onExtraToken
+let muteLog = true
+beforeEach(() => {
+  if (muteLog) {
+    onExtraTokenSpy = sinon.fake()
+    originalOnExtraToken = parse.onExtraToken
+    parse.onExtraToken = onExtraTokenSpy
+  } else {
+    onExtraTokenSpy = sinon.spy(parse, 'onExtraToken')
+  }
+})
+afterEach(() => {
+  if (muteLog) {
+    parse.onExtraToken = originalOnExtraToken
+  } else {
+    sinon.restore()
+  }
+})
+
 describe('parser TestSuit', function () {
   context('number', () => {
     it('should parse positive integer', function () {
@@ -532,11 +552,8 @@ describe('parser TestSuit', function () {
       console.error = error
     })
     it('should complaint on extra tokens', function () {
-      // let spy = sinon.fake()
-      // parse.onExtraToken = spy
-      let spy = sinon.spy(parse, 'onExtraToken')
       expect(parse(`[1] 2`)).deep.equals([1])
-      expect(spy.called).be.true
+      expect(onExtraTokenSpy.called).be.true
       expect(parse.lastParseReminding).equals(' 2')
     })
   })
