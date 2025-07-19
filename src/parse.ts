@@ -1,15 +1,22 @@
 type Error = unknown
 
-let logError = console.error.bind(console)
+let logError = console.error
 
-export function disableErrorLogging() {
+// for testing (spy/mock)
+export function setErrorLogger(
+  logger: (message: string, data?: any) => void,
+): void {
+  logError = logger
+}
+
+export function disableErrorLogging(): void {
   logError = () => {
     /* do not output to console */
   }
 }
 
-export function enableErrorLogging() {
-  logError = console.error.bind(console)
+export function enableErrorLogging(): void {
+  logError = console.error
 }
 
 export function parse(s: string | undefined | null): any {

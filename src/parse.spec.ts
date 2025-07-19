@@ -1,6 +1,6 @@
 import sinon from 'sinon'
 import { expect } from 'chai'
-import { parse } from './parse'
+import { parse, setErrorLogger } from './parse'
 
 let onExtraTokenSpy: sinon.SinonSpy
 let originalOnExtraToken: typeof parse.onExtraToken
@@ -543,13 +543,16 @@ describe('parser TestSuit', function () {
 
   context('invalid inputs', () => {
     it('should throw error on invalid (not incomplete) json text', function () {
+      // spy the error logger
       let spy = sinon.fake()
-      let error = console.error
-      console.error = spy
+      setErrorLogger(spy)
+
       expect(() => parse(`:atom`)).to.throws()
       expect(spy.called).be.true
-      expect(spy.firstCall.firstArg).is.string('no parser registered')
-      console.error = error
+      expect(spy.firstCall.firstArg).is.string('no parser registered for ":"')
+
+      // restore the error logger
+      setErrorLogger(console.error)
     })
     it('should complaint on extra tokens', function () {
       expect(parse(`[1] 2`)).deep.equals([1])
