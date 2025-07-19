@@ -1,5 +1,17 @@
 type Error = unknown
 
+let logError = console.error.bind(console)
+
+export function disableErrorLogging() {
+  logError = () => {
+    /* do not output to console */
+  }
+}
+
+export function enableErrorLogging() {
+  logError = console.error.bind(console)
+}
+
 export function parse(s: string | undefined | null): any {
   if (s === undefined) {
     return undefined
@@ -40,7 +52,7 @@ export namespace parse {
     data: any,
     reminding: string,
   ) => void | undefined = (text, data, reminding) => {
-    console.error('parsed json with extra tokens:', {
+    logError('parsed json with extra tokens:', {
       text,
       data,
       reminding,
@@ -55,7 +67,7 @@ function parseAny(
 ): ParseResult<any> {
   const parser = parsers[s[0]] || fallback
   if (!parser) {
-    console.error(`no parser registered for ${JSON.stringify(s[0])}:`, { s })
+    logError(`no parser registered for ${JSON.stringify(s[0])}:`, { s })
     throw e
   }
   return parser(s, e)
@@ -277,7 +289,7 @@ function parseToken<T>(
   /* istanbul ignore next */
   {
     const prefix = JSON.stringify(s.slice(0, tokenStr.length))
-    console.error(`unknown token starting with ${prefix}:`, { s })
+    logError(`unknown token starting with ${prefix}:`, { s })
     throw e
   }
 }
