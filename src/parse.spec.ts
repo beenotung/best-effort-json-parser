@@ -666,4 +666,25 @@ describe('parser TestSuit', function () {
       expect(parse('{"a":"\\')).deep.equals({ a: '' })
     })
   })
+
+  context('comment in json', () => {
+    it('should ignore inline comment', function () {
+      // test with //
+      let text = `{
+        "a": 1, // comment
+        "b": 2
+      }`
+      expect(parse(text)).deep.equals({ a: 1, b: 2 })
+    })
+    it('should ignore multi-line comment', function () {
+      // test with /* */
+      let text = `{
+        "a": 1, /* line 1
+        line 2
+        line 3 */
+        "b": 2
+      }`
+      expect(parse(text)).deep.equals({ a: 1, b: 2 })
+    })
+  })
 })
