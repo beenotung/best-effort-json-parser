@@ -20,7 +20,7 @@ export function enableErrorLogging(): void {
 }
 
 export function stripComments(text: string): string {
-  let buffer: string[] = []
+  const buffer: string[] = []
 
   let in_string = false
   let string_char = ''
@@ -31,7 +31,7 @@ export function stripComments(text: string): string {
   let in_block_comment = false
   let saw_star = false
 
-  for (let char of text) {
+  for (const char of text) {
     // handle string content
     if (in_string) {
       // handle escaped sequence payload
@@ -49,7 +49,7 @@ export function stripComments(text: string): string {
       }
 
       // handle end of string
-      if (char == string_char) {
+      if (char === string_char) {
         in_string = false
         buffer.push(char)
         continue
@@ -72,8 +72,8 @@ export function stripComments(text: string): string {
       continue
     }
 
-    let buffer_length = buffer.length
-    let last_char = buffer_length == 0 ? '' : buffer[buffer_length - 1]
+    const buffer_length = buffer.length
+    const last_char = buffer_length === 0 ? '' : buffer[buffer_length - 1]
 
     // handle block comment content
     if (in_block_comment) {
