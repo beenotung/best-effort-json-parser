@@ -686,5 +686,49 @@ describe('parser TestSuit', function () {
       }`
       expect(parse(text)).deep.equals({ a: 1, b: 2 })
     })
+    it('should not strip comments inside strings', function () {
+      let text = `{
+        "comment": "// this is not a comment",
+        "block": "/* neither is this */",
+        "value": 42
+      }`
+      expect(parse(text)).deep.equals({
+        comment: '// this is not a comment',
+        block: '/* neither is this */',
+        value: 42,
+      })
+    })
+    it('should handle comments at beginning and end', function () {
+      let text = `// start comment
+      {
+        "a": 1,
+        "b": 2
+      } // end comment`
+      expect(parse(text)).deep.equals({ a: 1, b: 2 })
+    })
+    it('should handle mixed comment types', function () {
+      let text = `{
+        "a": 1, // inline comment
+        /* multi-line
+           comment */
+        "b": 2
+      }`
+      expect(parse(text)).deep.equals({ a: 1, b: 2 })
+    })
+    it('should handle empty comments', function () {
+      let text = `{
+        "a": 1, //
+        "b": 2, /**/
+        "c": 3
+      }`
+      expect(parse(text)).deep.equals({ a: 1, b: 2, c: 3 })
+    })
+    it('should handle comments with special characters', function () {
+      let text = `{
+        "a": 1, // comment with "quotes" and 'single quotes'
+        "b": 2 /* comment with { } [ ] */
+      }`
+      expect(parse(text)).deep.equals({ a: 1, b: 2 })
+    })
   })
 })

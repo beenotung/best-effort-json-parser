@@ -19,6 +19,109 @@ export function enableErrorLogging(): void {
   logError = console.error
 }
 
+export function stripComments(text: string): string {
+  let buffer: string[] = []
+
+  let in_string = false
+  let string_char = ''
+  let string_escaped = false
+
+  let in_inline_comment = false
+
+  let in_block_comment = false
+  let saw_star = false
+
+  for (let char of text) {
+    // handle string content
+    if (in_string) {
+      // handle escaped sequence payload
+      if (string_escaped) {
+        string_escaped = false
+        buffer.push(char)
+        continue
+      }
+
+      // handle start of escape sequence
+      if (char === '\\') {
+        string_escaped = true
+        buffer.push(char)
+        continue
+      }
+
+      // handle end of string
+      if (char == string_char) {
+        in_string = false
+        buffer.push(char)
+        continue
+      }
+
+      // otherwise take the content of string
+      buffer.push(char)
+      continue
+    }
+
+    // handle inline comment content
+    if (in_inline_comment) {
+      // handle end of inline comment
+      if (char === '\n') {
+        in_inline_comment = false
+        continue
+      }
+
+      // otherwise ignore the content of comment
+      continue
+    }
+
+    let buffer_length = buffer.length
+    let last_char = buffer_length == 0 ? '' : buffer[buffer_length - 1]
+
+    // handle block comment content
+    if (in_block_comment) {
+      // handle end of block comment
+      if (char === '*') {
+        saw_star = true
+        continue
+      }
+      if (saw_star && char === '/') {
+        in_block_comment = false
+        continue
+      }
+
+      // otherwise ignore the content of comment
+      saw_star = false
+      continue
+    }
+
+    // handle start of inline comment
+    if (last_char === '/' && char === '/') {
+      buffer.pop()
+      in_inline_comment = true
+      continue
+    }
+
+    // handle start of block comment
+    if (last_char === '/' && char === '*') {
+      buffer.pop()
+      in_block_comment = true
+      saw_star = false
+      continue
+    }
+
+    // handle start of string
+    if (char === '"' || char === "'" || char === '`') {
+      in_string = true
+      string_char = char
+      string_escaped = false
+      buffer.push(char)
+      continue
+    }
+
+    // otherwise take the content of the text
+    buffer.push(char)
+  }
+  return buffer.join('')
+}
+
 export function parse(s: string | undefined | null): any {
   if (s === undefined) {
     return undefined
@@ -29,6 +132,8 @@ export function parse(s: string | undefined | null): any {
   if (s === '') {
     return ''
   }
+  // strip comments first
+  s = stripComments(s)
   // remove incomplete escaped characters at the end of the string
   s = s.replace(/\\+$/, match =>
     match.length % 2 === 0 ? match : match.slice(0, -1),
