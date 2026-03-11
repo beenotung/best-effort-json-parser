@@ -730,5 +730,12 @@ describe('parser TestSuit', function () {
       }`
       expect(parse(text)).deep.equals({ a: 1, b: 2 })
     })
+    it('should handle html style of comments', function () {
+      let text = `[
+        "line 1", <!-- comment -->
+        "line 2"
+      ]`
+      expect(parse(text)).deep.equals(['line 1', 'line 2'])
+    })
   })
 })

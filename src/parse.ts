@@ -31,6 +31,9 @@ export function stripComments(text: string): string {
   let in_block_comment = false
   let saw_star = false
 
+  let in_html_comment = false
+  let saw_hyphen = 0
+
   for (const char of text) {
     // handle string content
     if (in_string) {
@@ -92,6 +95,23 @@ export function stripComments(text: string): string {
       continue
     }
 
+    // handle html comment content
+    if (in_html_comment) {
+      // handle end of html comment
+      if (char === '-') {
+        saw_hyphen++
+        continue
+      }
+      if (saw_hyphen >= 2 && char === '>') {
+        in_html_comment = false
+        continue
+      }
+
+      // otherwise ignore the content of comment
+      saw_hyphen = 0
+      continue
+    }
+
     // handle start of inline comment
     if (last_char === '/' && char === '/') {
       buffer.pop()
@@ -113,6 +133,21 @@ export function stripComments(text: string): string {
       string_char = char
       string_escaped = false
       buffer.push(char)
+      continue
+    }
+
+    // handle start of html comment "<!--"
+    if (
+      buffer_length >= 4 &&
+      char === '-' &&
+      buffer[buffer_length - 1] === '-' &&
+      buffer[buffer_length - 2] === '!' &&
+      buffer[buffer_length - 3] === '<'
+    ) {
+      in_html_comment = true
+      buffer.pop()
+      buffer.pop()
+      buffer.pop()
       continue
     }
 
