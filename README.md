@@ -1,6 +1,6 @@
 # best-effort-json-parser
 
-Parse incomplete JSON text in best-effort manner. Useful for partial JSON responses, broken network packages, or LLM responses exceeding tokens.
+Parse incomplete JSON text in best-effort manner with support for comments. Useful for partial JSON responses, broken network packages, or LLM responses exceeding tokens. It can also read configuration files with comments.
 
 [![npm Package Version](https://img.shields.io/npm/v/best-effort-json-parser)](https://www.npmjs.com/package/best-effort-json-parser)
 [![Minified Package Size](https://img.shields.io/bundlephobia/min/best-effort-json-parser)](https://bundlephobia.com/package/best-effort-json-parser)
@@ -11,6 +11,7 @@ Parse incomplete JSON text in best-effort manner. Useful for partial JSON respon
 
 - Typescript support
 - Isomorphic package: works in Node.js and browsers
+- Comment support: `// inline`, `/* multi-line */`, and `<!-- HTML-style -->` comments
 
 ## Installation
 
@@ -22,12 +23,46 @@ You can also install `best-effort-json-parser` with [pnpm](https://pnpm.io/), [y
 
 ## Usage Example
 
+### Parsing incomplete JSON text
+
+If the string, object, or array is not complete, the parser will return the partial data.
+
 ```typescript
 import { parse } from 'best-effort-json-parser'
 
 let data = parse(`[1, 2, {"a": "apple`)
 console.log(data) // [1, 2, { a: 'apple' }]
 ```
+
+### Parsing json with comments
+
+Multiple types of comments are supported:
+
+```typescript
+import { parse } from 'best-effort-json-parser'
+
+let config = parse(`{
+  "database": {
+    "host": "localhost", // database server
+    "port": 5432, /* default port */
+    "ssl": true
+  },
+  "features": ["auth", "api"] <!-- injected by LLM -->
+}`)
+```
+
+Comments inside strings are preserved and not treated as comments:
+
+```typescript
+let data = parse(`{
+  "inline_comment": "// this is not a comment",
+  "block_comment": "/* neither is this */",
+  "html_comment": \`<!-- \${variable} -->\`,
+  "value": 42
+}`)
+```
+
+**Note:** The parser also supports template literals with backticks (\`) for strings, in addition to single and double quotes.
 
 ## Error Logging
 
