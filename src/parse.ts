@@ -231,6 +231,9 @@ function parseStringCasual(
   if (s[0] === "'") {
     return parseSingleQuoteString(s)
   }
+  if (s[0] === '`') {
+    return parseBacktickString(s)
+  }
   return parseStringWithoutQuote(s, e, delimiters)
 }
 
@@ -345,6 +348,34 @@ function parseSingleQuoteString(s: string): ParseResult<string> {
     }
   }
   return [JSON.parse('"' + fixEscapedCharacters(s.slice(1)) + '"'), '']
+}
+
+parsers['`'] = parseBacktickString
+
+function parseBacktickString(s: string): ParseResult<string> {
+  let buffer: string[] = []
+  let is_escaped = false
+  let escape_count = 0
+  for (let i = 1; i < s.length; i++) {
+    const c = s[i]
+    if (is_escaped) {
+      buffer.push(c)
+      is_escaped = false
+      continue
+    }
+    if (c === '\\') {
+      is_escaped = true
+      escape_count++
+      continue
+    }
+    if (c === '`') {
+      const str = buffer.join('')
+      s = s.substring(str.length + escape_count + 2)
+      return [str, s]
+    }
+    buffer.push(c)
+  }
+  return [buffer.join(''), s.slice(1)]
 }
 
 function parseStringWithoutQuote(

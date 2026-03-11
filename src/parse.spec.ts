@@ -624,6 +624,16 @@ describe('parser TestSuit', function () {
       it('should parse array of string without double quote', function () {
         expect(parse(`[a,b,c]`)).deep.equals(['a', 'b', 'c'])
       })
+      it('should parse string with backticks', function () {
+        expect(parse(`\`"Alice's"\``)).equals(`"Alice's"`)
+        expect(
+          parse(`[
+            \`double quote: "\`,
+            \`single quote: '\`,
+            ${'`backtick: \\``'}
+          ]`),
+        ).deep.equals([`double quote: "`, `single quote: '`, 'backtick: `'])
+      })
     })
     context('object key', () => {
       it('should parse object key with double quote', function () {
