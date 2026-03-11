@@ -353,7 +353,7 @@ function parseSingleQuoteString(s: string): ParseResult<string> {
 parsers['`'] = parseBacktickString
 
 function parseBacktickString(s: string): ParseResult<string> {
-  let buffer: string[] = []
+  const buffer: string[] = []
   let is_escaped = false
   let escape_count = 0
   for (let i = 1; i < s.length; i++) {
