@@ -618,6 +618,11 @@ describe('parser TestSuit', function () {
       it('should parse string with single quote', function () {
         expect(parse(`'str'`)).equals('str')
       })
+      it('should parse single-quoted string with double quotes in payload', function () {
+        expect(parse(`'{"refresh_token":"xxxx"}'`)).equals(
+          '{"refresh_token":"xxxx"}',
+        )
+      })
       it('should parse string without double quote', function () {
         expect(parse(`str`)).equals('str')
       })

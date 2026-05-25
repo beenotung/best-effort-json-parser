@@ -342,12 +342,12 @@ function parseSingleQuoteString(s: string): ParseResult<string> {
       continue
     }
     if (c === "'") {
-      const str = fixEscapedCharacters(s.substring(0, i + 1))
+      const inner = fixEscapedCharacters(s.substring(1, i))
       s = s.substring(i + 1)
-      return [JSON.parse('"' + str.slice(1, -1) + '"'), s]
+      return [inner, s]
     }
   }
-  return [JSON.parse('"' + fixEscapedCharacters(s.slice(1)) + '"'), '']
+  return [fixEscapedCharacters(s.slice(1)), '']
 }
 
 parsers['`'] = parseBacktickString
