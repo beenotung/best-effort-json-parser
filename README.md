@@ -1,6 +1,6 @@
 # best-effort-json-parser
 
-Parse incomplete JSON text in best-effort manner with support for comments. Useful for partial JSON responses, broken network packages, or LLM responses exceeding tokens. It can also read configuration files with comments.
+Parse incomplete JSON text in best-effort manner with support for comments and markdown code blocks. Useful for partial JSON responses, broken network packages, or LLM responses that wrap JSON in ` ```json ` fences or exceed token limits. It can also read configuration files with comments.
 
 [![npm Package Version](https://img.shields.io/npm/v/best-effort-json-parser)](https://www.npmjs.com/package/best-effort-json-parser)
 [![Minified Package Size](https://img.shields.io/bundlephobia/min/best-effort-json-parser)](https://bundlephobia.com/package/best-effort-json-parser)
@@ -12,6 +12,7 @@ Parse incomplete JSON text in best-effort manner with support for comments. Usef
 - Typescript support
 - Isomorphic package: works in Node.js and browsers
 - Comment support: `// inline`, `/* multi-line */`, and `<!-- HTML-style -->` comments
+- Markdown code block support: automatically extracts JSON from ` ```json ` or ` ``` ` fenced blocks
 
 ## Installation
 
@@ -64,6 +65,34 @@ let data = parse(`{
 
 **Note:** The parser also supports template literals with backticks (\`) for strings, in addition to single and double quotes.
 
+### Parsing JSON in markdown code blocks
+
+When LLMs return JSON inside markdown fences, `parse()` extracts the payload automatically:
+
+```typescript
+import { parse } from 'best-effort-json-parser'
+
+let llmResponse = `\`\`\`json
+[
+  {"id": 1, "username": "alice"},
+  {"id": 2, "username": "bob"}
+]
+\`\`\``
+
+let data = parse(llmResponse)
+console.log(data) // [{ id: 1, username: 'alice' }, { id: 2, username: 'bob' }]
+```
+
+Both ` ```json ` and plain ` ``` ` fences are supported. If no fence is found, the input is parsed as-is.
+
+You can also use `extractFromMarkdown()` directly when you only need to strip the fence:
+
+```typescript
+import { extractFromMarkdown } from 'best-effort-json-parser'
+
+let json = extractFromMarkdown(llmResponse)
+```
+
 ## Error Logging
 
 By default, the parser logs errors to `console.error`. You can control error logging behavior:
@@ -110,6 +139,10 @@ namespace parse {
 function setErrorLogger(logger: (message: string, data?: any) => void): void
 function disableErrorLogging(): void
 function enableErrorLogging(): void
+
+// Helper functions
+function stripComments(text: string): string
+function extractFromMarkdown(s: string): string
 ```
 
 More examples see [parse.spec.ts](./src/parse.spec.ts)
