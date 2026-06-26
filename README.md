@@ -12,7 +12,7 @@ Parse incomplete JSON text in best-effort manner with support for comments and m
 - Typescript support
 - Isomorphic package: works in Node.js and browsers
 - Comment support: `// inline`, `/* multi-line */`, and `<!-- HTML-style -->` comments
-- Markdown code block support: automatically extracts JSON from ` ```json ` or ` ``` ` fenced blocks
+- Markdown code block support: extracts JSON from ` ```json ` or ` ``` ` fences during parsing; remaining text is available via `parse.lastParseReminding`
 
 ## Installation
 
@@ -67,7 +67,7 @@ let data = parse(`{
 
 ### Parsing JSON in markdown code blocks
 
-When LLMs return JSON inside markdown fences, `parse()` extracts the payload automatically:
+When LLMs return JSON inside markdown fences, `parse()` extracts the first block automatically:
 
 ```typescript
 import { parse } from 'best-effort-json-parser'
@@ -84,6 +84,48 @@ console.log(data) // [{ id: 1, username: 'alice' }, { id: 2, username: 'bob' }]
 ```
 
 Both ` ```json ` and plain ` ``` ` fences are supported. If no fence is found, the input is parsed as-is.
+
+When the response contains multiple fenced blocks, loop on `parse.lastParseReminding` to parse each block until it's empty.
+
+Given markdown text with multiple fenced blocks:
+
+````markdown
+# Part 1:
+
+```json
+[
+  { "id": 1, "username": "alice" },
+  { "id": 2, "username": "bob" }
+]
+```
+
+# Part 2:
+
+```
+[
+  { "id": 3, "username": "charlie" },
+  { "id": 4, "username": "david" }
+]
+```
+````
+
+```typescript
+let parts: any[] = []
+for (let acc = text; acc; acc = parse.lastParseReminding!) {
+  parts.push(parse(acc))
+}
+// parts[0] => [{ id: 1, username: 'alice' }, { id: 2, username: 'bob' }]
+// parts[1] => [{ id: 3, username: 'charlie' }, { id: 4, username: 'david' }]
+```
+
+Fences inside JSON string values are preserved and not treated as markdown:
+
+````typescript
+let data = parse(`{
+  "snippet": "\`\`\`json\\n[1,2,3]\\n\`\`\`"
+}`)
+// { snippet: '```json\n[1,2,3]\n```' }
+````
 
 ## Error Logging
 
@@ -123,7 +165,7 @@ function parse(s: string | undefined | null): any
 
 // Parse namespace with additional properties
 namespace parse {
-  lastParseReminding: string | undefined
+  lastParseReminding: string | undefined // remaining text after the last parse (e.g. trailing markdown blocks)
   onExtraToken: (text: string, data: any, reminding: string) => void | undefined
 }
 

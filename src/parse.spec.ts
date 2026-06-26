@@ -806,15 +806,18 @@ Part 2:
 \`\`\`
 `
 
-      let part1 = parse(text)
-      let part2 = parse(parse.lastParseReminding)
+      let parts: any[] = []
+      for (let acc = text; acc; acc = parse.lastParseReminding!) {
+        parts.push(parse(acc))
+      }
 
-      expect(part1).deep.equals([
+      expect(parts).to.have.lengthOf(2)
+      expect(parts[0]).deep.equals([
         { id: 1, username: 'alice' },
         { id: 2, username: 'bob' },
         { id: 3, username: 'charlie' },
       ])
-      expect(part2).deep.equals([
+      expect(parts[1]).deep.equals([
         { id: 4, username: 'david' },
         { id: 5, username: 'eve' },
         { id: 6, username: 'frank' },
