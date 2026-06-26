@@ -179,16 +179,17 @@ export function parse(s: string | undefined | null): any {
     return data
   } catch (e) {
     const prefix = s.trimStart()
+    const fallback = undefined
     const [data, reminding] =
       prefix[0] === ':'
-        ? parseAny(s, e)
+        ? parseAny(s, e, fallback)
         : prefix.includes('```')
-        ? parseMarkdown(s, e)
+        ? parseMarkdown(s, e, fallback)
         : parseAny(s, e, parseStringWithoutQuote)
     if (data === '' && s.length > 0) {
       // extract json from markdown code block
       if (s.includes('```')) {
-        return parseMarkdown(s, e)
+        return parseMarkdown(s, e, fallback)
       }
     }
     parse.lastParseReminding = reminding
@@ -221,17 +222,29 @@ export namespace parse {
 function parseAny(
   s: string,
   e: Error,
-  fallback?: Parser<any>,
+  fallback: undefined | Parser<any>,
 ): ParseResult<any> {
-  const parser = parsers[s[0]] || fallback
+  let parser: Parser<any> | undefined = parsers[s[0]]
+  if (
+    !parser ||
+    (parser === parseTrue && !isToken(s, 'true')) ||
+    (parser === parseFalse && !isToken(s, 'false')) ||
+    (parser === parseNull && !isToken(s, 'null'))
+  ) {
+    parser = fallback
+  }
   if (!parser) {
     logError(`no parser registered for ${JSON.stringify(s[0])}:`, { s })
     throw e
   }
-  return parser(s, e)
+  return parser(s, e, fallback)
 }
 
-function parseMarkdown(s: string, e: Error): ParseResult<any> {
+function parseMarkdown(
+  s: string,
+  e: Error,
+  fallback: undefined | Parser<any>,
+): ParseResult<any> {
   const codePattern = '```'
   const jsonPattern = '```json'
   const codeIndex = s.indexOf(codePattern)
@@ -240,7 +253,7 @@ function parseMarkdown(s: string, e: Error): ParseResult<any> {
     codeIndex === jsonIndex
       ? s.substring(jsonIndex + jsonPattern.length)
       : s.substring(codeIndex + codePattern.length)
-  const [data, _reminding] = parseAny(payload, e)
+  const [data, _reminding] = parseAny(payload, e, fallback)
   let reminding = _reminding.trimStart()
   if (reminding.startsWith(codePattern)) {
     reminding = reminding.substring(codePattern.length).trimStart()
@@ -251,6 +264,7 @@ function parseMarkdown(s: string, e: Error): ParseResult<any> {
 function parseStringCasual(
   s: string,
   e: Error,
+  fallback: undefined | Parser<any>,
   delimiters?: string[],
 ): ParseResult<string> {
   if (s[0] === '"') {
@@ -262,11 +276,15 @@ function parseStringCasual(
   if (s[0] === '`') {
     return parseBacktickString(s)
   }
-  return parseStringWithoutQuote(s, e, delimiters)
+  return parseStringWithoutQuote(s, e, fallback, delimiters)
 }
 
 type Code = string
-type Parser<T> = (s: Code, e: Error) => ParseResult<T>
+type Parser<T> = (
+  s: Code,
+  e: Error,
+  fallback: undefined | Parser<any>,
+) => ParseResult<T>
 type ParseResult<T> = [T, Code]
 
 const parsers: Record<string, Parser<any>> = {}
@@ -280,14 +298,18 @@ parsers['\r'] = parseSpace
 parsers['\n'] = parseSpace
 parsers['\t'] = parseSpace
 
-function parseSpace(s: string, e: Error) {
+function parseSpace(s: string, e: Error, fallback: undefined | Parser<any>) {
   s = skipSpace(s)
-  return parseAny(s, e)
+  return parseAny(s, e, fallback)
 }
 
 parsers['['] = parseArray
 
-function parseArray(s: string, e: Error): ParseResult<any[]> {
+function parseArray(
+  s: string,
+  e: Error,
+  fallback: undefined | Parser<any>,
+): ParseResult<any[]> {
   s = s.substr(1) // skip starting '['
   const acc: any[] = []
   s = skipSpace(s)
@@ -297,7 +319,7 @@ function parseArray(s: string, e: Error): ParseResult<any[]> {
       break
     }
     const res = parseAny(s, e, (s, e) =>
-      parseStringWithoutQuote(s, e, [',', ']']),
+      parseStringWithoutQuote(s, e, fallback, [',', ']']),
     )
     acc.push(res[0])
     s = res[1]
@@ -409,6 +431,7 @@ function parseBacktickString(s: string): ParseResult<string> {
 function parseStringWithoutQuote(
   s: string,
   e: Error,
+  fallback: undefined | Parser<any>,
   delimiters: string[] = [' '],
 ): ParseResult<string> {
   const index = Math.min(
@@ -424,7 +447,11 @@ function parseStringWithoutQuote(
 
 parsers['{'] = parseObject
 
-function parseObject(s: string, e: Error): ParseResult<object> {
+function parseObject(
+  s: string,
+  e: Error,
+  fallback: undefined | Parser<any>,
+): ParseResult<object> {
   s = s.substr(1) // skip starting '{'
   const acc: any = {}
   s = skipSpace(s)
@@ -434,7 +461,7 @@ function parseObject(s: string, e: Error): ParseResult<object> {
       break
     }
 
-    const keyRes = parseStringCasual(s, e, [':', '}'])
+    const keyRes = parseStringCasual(s, e, fallback, [':', '}'])
     const key = keyRes[0]
     s = keyRes[1]
 
@@ -450,7 +477,7 @@ function parseObject(s: string, e: Error): ParseResult<object> {
       acc[key] = undefined
       break
     }
-    const valueRes = parseAny(s, e)
+    const valueRes = parseAny(s, e, fallback)
     acc[key] = valueRes[0]
     s = valueRes[1]
     s = skipSpace(s)
@@ -491,6 +518,10 @@ function parseToken<T>(
     if (s.startsWith(tokenStr.slice(0, i))) {
       return [tokenVal, s.slice(i)]
     }
+    if (s.length >= i) {
+      logError(`expect token "${tokenStr}" but got "${s.slice(0, i)}"`)
+      throw e
+    }
   }
   /* istanbul ignore next */
   {
@@ -498,4 +529,21 @@ function parseToken<T>(
     logError(`unknown token starting with ${prefix}:`, { s })
     throw e
   }
+}
+
+const symbols = ` \t\r\n{}[],:"'\``
+
+function isToken(s: string, tokenStr: string) {
+  if (s.length > tokenStr.length && !symbols.includes(s[tokenStr.length])) {
+    return false
+  }
+  for (let i = Math.min(s.length, tokenStr.length); i >= 1; i--) {
+    if (s.startsWith(tokenStr.slice(0, i))) {
+      return true
+    }
+    if (s.length >= i) {
+      return false
+    }
+  }
+  return false
 }

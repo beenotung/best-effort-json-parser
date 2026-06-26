@@ -87,10 +87,12 @@ Both ` ```json ` and plain ` ``` ` fences are supported. If no fence is found, t
 
 When the response contains multiple fenced blocks, loop on `parse.lastParseReminding` to parse each block until it's empty.
 
+Text after fences is also parsed. Most of them will be parsed as string, but substrings like `true` or `123` can become boolean or number, so filter by the JSON shape you expect from the markdown text (e.g. array or object):
+
 Given markdown text with multiple fenced blocks:
 
 ````markdown
-# Part 1:
+Part 1:
 
 ```json
 [
@@ -99,7 +101,7 @@ Given markdown text with multiple fenced blocks:
 ]
 ```
 
-# Part 2:
+Part 2:
 
 ```
 [
@@ -107,6 +109,8 @@ Given markdown text with multiple fenced blocks:
   { "id": 4, "username": "david" }
 ]
 ```
+
+Ending text.
 ````
 
 ```typescript
@@ -114,6 +118,12 @@ let parts: any[] = []
 for (let acc = text; acc; acc = parse.lastParseReminding!) {
   parts.push(parse(acc))
 }
+// expect arrays from the LLM — skip prose parsed as string/number/boolean
+parts = parts.filter(part => Array.isArray(part))
+
+// if you expect objects instead:
+// parts = parts.filter(part => typeof part === 'object' && part !== null && !Array.isArray(part))
+
 // parts[0] => [{ id: 1, username: 'alice' }, { id: 2, username: 'bob' }]
 // parts[1] => [{ id: 3, username: 'charlie' }, { id: 4, username: 'david' }]
 ```

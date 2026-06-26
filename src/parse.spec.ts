@@ -804,12 +804,16 @@ Part 2:
   {"id": 6, "username": "frank"}
 ]
 \`\`\`
+
+Ending text.
 `
 
       let parts: any[] = []
       for (let acc = text; acc; acc = parse.lastParseReminding!) {
         parts.push(parse(acc))
       }
+      // skip text outside code block, e.g. the text "Ending text."
+      parts = parts.filter(part => Array.isArray(part))
 
       expect(parts).to.have.lengthOf(2)
       expect(parts[0]).deep.equals([
