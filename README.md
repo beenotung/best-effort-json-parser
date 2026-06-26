@@ -35,7 +35,7 @@ let data = parse(`[1, 2, {"a": "apple`)
 console.log(data) // [1, 2, { a: 'apple' }]
 ```
 
-### Parsing json with comments
+### Parsing JSON with comments
 
 Multiple types of comments are supported:
 
@@ -175,7 +175,7 @@ function disableErrorLogging(): void
 function enableErrorLogging(): void
 ```
 
-More examples see [parse.spec.ts](./src/parse.spec.ts)
+See more examples in [parse.spec.ts](./src/parse.spec.ts)
 
 ## License
 
