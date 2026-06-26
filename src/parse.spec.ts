@@ -755,8 +755,23 @@ describe('parser TestSuit', function () {
   })
 
   context('json in markdown', () => {
-    it('should parse json in markdown', function () {
+    it('should parse json in markdown with json fence', function () {
       let text = `\`\`\`json
+[
+  {"id": 1, "username": "alice"},
+  {"id": 2, "username": "bob"},
+  {"id": 3, "username": "charlie"}
+]
+\`\`\``
+      expect(parse(text)).deep.equals([
+        { id: 1, username: 'alice' },
+        { id: 2, username: 'bob' },
+        { id: 3, username: 'charlie' },
+      ])
+    })
+
+    it('should parse json in markdown with plain fence', function () {
+      let text = `\`\`\`
 [
   {"id": 1, "username": "alice"},
   {"id": 2, "username": "bob"},
