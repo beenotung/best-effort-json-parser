@@ -157,6 +157,25 @@ export function stripComments(text: string): string {
   return buffer.join('')
 }
 
+export function extractFromMarkdown(s: string): string {
+  const genericPattern = '```'
+  const jsonPattern = '```json'
+  const genericIndex = s.indexOf(genericPattern)
+  if (genericIndex === -1) {
+    return s
+  }
+  const jsonIndex = s.indexOf(jsonPattern)
+  let payload =
+    jsonIndex === genericIndex
+      ? s.substring(jsonIndex + jsonPattern.length)
+      : s.substring(genericIndex + genericPattern.length)
+  const endIndex = payload.lastIndexOf(genericPattern)
+  if (endIndex !== -1) {
+    payload = payload.substring(0, endIndex)
+  }
+  return payload.trim()
+}
+
 export function parse(s: string | undefined | null): any {
   if (s === undefined) {
     return undefined
@@ -169,6 +188,8 @@ export function parse(s: string | undefined | null): any {
   }
   // strip comments first
   s = stripComments(s)
+  // extract json from markdown code block
+  s = extractFromMarkdown(s)
   // remove incomplete escaped characters at the end of the string
   s = s.replace(/\\+$/, match =>
     match.length % 2 === 0 ? match : match.slice(0, -1),

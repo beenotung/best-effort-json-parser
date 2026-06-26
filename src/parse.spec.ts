@@ -753,4 +753,21 @@ describe('parser TestSuit', function () {
       expect(parse(text)).deep.equals(['line 1', 'line 2'])
     })
   })
+
+  context('json in markdown', () => {
+    it('should parse json in markdown', function () {
+      let text = `\`\`\`json
+[
+  {"id": 1, "username": "alice"},
+  {"id": 2, "username": "bob"},
+  {"id": 3, "username": "charlie"}
+]
+\`\`\``
+      expect(parse(text)).deep.equals([
+        { id: 1, username: 'alice' },
+        { id: 2, username: 'bob' },
+        { id: 3, username: 'charlie' },
+      ])
+    })
+  })
 })
