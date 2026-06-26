@@ -1,6 +1,6 @@
 # best-effort-json-parser
 
-Parse incomplete JSON text in best-effort manner with support for comments and markdown code blocks. Useful for partial JSON responses, broken network packages, or LLM responses that wrap JSON in ` ```json ` fences or exceed token limits. It can also read configuration files with comments.
+Parse incomplete JSON text in best-effort manner. Useful for partial JSON responses, broken network packages, LLM responses with markdown fences or exceeding token limits, and configuration files with comments.
 
 [![npm Package Version](https://img.shields.io/npm/v/best-effort-json-parser)](https://www.npmjs.com/package/best-effort-json-parser)
 [![Minified Package Size](https://img.shields.io/bundlephobia/min/best-effort-json-parser)](https://bundlephobia.com/package/best-effort-json-parser)
