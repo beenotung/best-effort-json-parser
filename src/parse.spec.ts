@@ -784,5 +784,49 @@ describe('parser TestSuit', function () {
         { id: 3, username: 'charlie' },
       ])
     })
+
+    it('should parse multiple json blocks in markdown', function () {
+      let text = `
+Part 1:
+\`\`\`json
+[
+  {"id": 1, "username": "alice"},
+  {"id": 2, "username": "bob"},
+  {"id": 3, "username": "charlie"}
+]
+\`\`\`
+
+Part 2:
+\`\`\`
+[
+  {"id": 4, "username": "david"},
+  {"id": 5, "username": "eve"},
+  {"id": 6, "username": "frank"}
+]
+\`\`\`
+`
+
+      let part1 = parse(text)
+      let part2 = parse(parse.lastParseReminding)
+
+      expect(part1).deep.equals([
+        { id: 1, username: 'alice' },
+        { id: 2, username: 'bob' },
+        { id: 3, username: 'charlie' },
+      ])
+      expect(part2).deep.equals([
+        { id: 4, username: 'david' },
+        { id: 5, username: 'eve' },
+        { id: 6, username: 'frank' },
+      ])
+    })
+
+    it('should not treat code pattern inside string as markdown code block', function () {
+      let text = `{
+        "a": "\`\`\`json\\n[1,2,3]\\n\`\`\`",
+        "b": "\`\`\`"
+      }`
+      expect(parse(text)).deep.equals({ a: '```json\n[1,2,3]\n```', b: '```' })
+    })
   })
 })

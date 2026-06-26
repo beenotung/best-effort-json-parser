@@ -157,25 +157,6 @@ export function stripComments(text: string): string {
   return buffer.join('')
 }
 
-export function extractFromMarkdown(s: string): string {
-  const genericPattern = '```'
-  const jsonPattern = '```json'
-  const genericIndex = s.indexOf(genericPattern)
-  if (genericIndex === -1) {
-    return s
-  }
-  const jsonIndex = s.indexOf(jsonPattern)
-  let payload =
-    jsonIndex === genericIndex
-      ? s.substring(jsonIndex + jsonPattern.length)
-      : s.substring(genericIndex + genericPattern.length)
-  const endIndex = payload.lastIndexOf(genericPattern)
-  if (endIndex !== -1) {
-    payload = payload.substring(0, endIndex)
-  }
-  return payload.trim()
-}
-
 export function parse(s: string | undefined | null): any {
   if (s === undefined) {
     return undefined
@@ -188,8 +169,6 @@ export function parse(s: string | undefined | null): any {
   }
   // strip comments first
   s = stripComments(s)
-  // extract json from markdown code block
-  s = extractFromMarkdown(s)
   // remove incomplete escaped characters at the end of the string
   s = s.replace(/\\+$/, match =>
     match.length % 2 === 0 ? match : match.slice(0, -1),
@@ -197,10 +176,19 @@ export function parse(s: string | undefined | null): any {
   try {
     return JSON.parse(s)
   } catch (e) {
+    const prefix = s.trimStart()
     const [data, reminding] =
-      s.trimStart()[0] === ':'
+      prefix[0] === ':'
         ? parseAny(s, e)
+        : prefix.includes('```')
+        ? parseMarkdown(s, e)
         : parseAny(s, e, parseStringWithoutQuote)
+    if (data === '' && s.length > 0) {
+      // extract json from markdown code block
+      if (s.includes('```')) {
+        return parseMarkdown(s, e)
+      }
+    }
     parse.lastParseReminding = reminding
     if (parse.onExtraToken && reminding.length > 0) {
       const trimmedReminding = reminding.trimEnd()
@@ -239,6 +227,23 @@ function parseAny(
     throw e
   }
   return parser(s, e)
+}
+
+function parseMarkdown(s: string, e: Error): ParseResult<any> {
+  const codePattern = '```'
+  const jsonPattern = '```json'
+  const codeIndex = s.indexOf(codePattern)
+  const jsonIndex = s.indexOf(jsonPattern)
+  const payload =
+    codeIndex === jsonIndex
+      ? s.substring(jsonIndex + jsonPattern.length)
+      : s.substring(codeIndex + codePattern.length)
+  const [data, _reminding] = parseAny(payload, e)
+  let reminding = _reminding.trimStart()
+  if (reminding.startsWith(codePattern)) {
+    reminding = reminding.substring(codePattern.length).trimStart()
+  }
+  return [data, reminding]
 }
 
 function parseStringCasual(

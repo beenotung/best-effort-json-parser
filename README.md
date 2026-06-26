@@ -85,14 +85,6 @@ console.log(data) // [{ id: 1, username: 'alice' }, { id: 2, username: 'bob' }]
 
 Both ` ```json ` and plain ` ``` ` fences are supported. If no fence is found, the input is parsed as-is.
 
-You can also use `extractFromMarkdown()` directly when you only need to strip the fence:
-
-```typescript
-import { extractFromMarkdown } from 'best-effort-json-parser'
-
-let json = extractFromMarkdown(llmResponse)
-```
-
 ## Error Logging
 
 By default, the parser logs errors to `console.error`. You can control error logging behavior:
@@ -139,10 +131,6 @@ namespace parse {
 function setErrorLogger(logger: (message: string, data?: any) => void): void
 function disableErrorLogging(): void
 function enableErrorLogging(): void
-
-// Helper functions
-function stripComments(text: string): string
-function extractFromMarkdown(s: string): string
 ```
 
 More examples see [parse.spec.ts](./src/parse.spec.ts)
