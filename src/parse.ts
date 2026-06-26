@@ -177,12 +177,12 @@ export function parse(s: string | undefined | null): any {
     return JSON.parse(s)
   } catch (e) {
     const [data, reminding] =
-      s.trimLeft()[0] === ':'
+      s.trimStart()[0] === ':'
         ? parseAny(s, e)
         : parseAny(s, e, parseStringWithoutQuote)
     parse.lastParseReminding = reminding
     if (parse.onExtraToken && reminding.length > 0) {
-      const trimmedReminding = reminding.trimRight()
+      const trimmedReminding = reminding.trimEnd()
       parse.lastParseReminding = trimmedReminding
       if (trimmedReminding.length > 0) {
         parse.onExtraToken(s, data, trimmedReminding)
