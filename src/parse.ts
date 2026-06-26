@@ -174,7 +174,9 @@ export function parse(s: string | undefined | null): any {
     match.length % 2 === 0 ? match : match.slice(0, -1),
   )
   try {
-    return JSON.parse(s)
+    const data = JSON.parse(s)
+    parse.lastParseReminding = ''
+    return data
   } catch (e) {
     const prefix = s.trimStart()
     const [data, reminding] =
